@@ -14,22 +14,10 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getRecords, deleteRecord } from '../services/api';
 import { getCategoryStyle } from '../constants/categories';
+import { parseRecordDate, startOfLocalDay, formatRecordDateDisplay } from '../utils/recordDate';
 
 const PERIOD_TABS = ['Tümü', 'Bu Ay', 'Bu Hafta', 'Bugün'];
 const TYPE_TABS = ['Tümü', 'Gider', 'Yatırım'];
-
-function parseDate(dateStr) {
-  if (!dateStr) return new Date(0);
-  const parts = dateStr.split('.');
-  if (parts.length === 3) {
-    return new Date(
-      parseInt(parts[2], 10),
-      parseInt(parts[1], 10) - 1,
-      parseInt(parts[0], 10),
-    );
-  }
-  return new Date(dateStr);
-}
 
 export default function RecordDetailScreen({ navigation, route }) {
   const { category, type, title, icon, bg, color } = route.params || {};
@@ -73,10 +61,10 @@ export default function RecordDetailScreen({ navigation, route }) {
       const weekAgo = new Date(today);
       weekAgo.setDate(weekAgo.getDate() - 6);
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const parsedDate = parseDate(k.date);
-      if (activePeriod === 'Bugün' && parsedDate < today) return false;
-      if (activePeriod === 'Bu Hafta' && parsedDate < weekAgo) return false;
-      if (activePeriod === 'Bu Ay' && parsedDate < monthStart) return false;
+      const parsedDay = startOfLocalDay(parseRecordDate(k.date));
+      if (activePeriod === 'Bugün' && parsedDay.getTime() !== today.getTime()) return false;
+      if (activePeriod === 'Bu Hafta' && parsedDay < weekAgo) return false;
+      if (activePeriod === 'Bu Ay' && parsedDay < monthStart) return false;
     }
 
     return true;
@@ -147,7 +135,7 @@ export default function RecordDetailScreen({ navigation, route }) {
               </Text>
             </View>
             <Text style={styles.recordSubText}>
-              {item.category} • {item.date}
+              {item.category} • {formatRecordDateDisplay(item.date)}
             </Text>
           </View>
         </View>

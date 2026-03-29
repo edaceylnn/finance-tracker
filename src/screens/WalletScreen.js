@@ -13,18 +13,10 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getRecords } from '../services/api';
 import { getCategoryStyle } from '../constants/categories';
+import { parseRecordDate, startOfLocalDay } from '../utils/recordDate';
 
 const PERIOD_TABS = ['Gün', 'Hafta', 'Ay', 'Tümü'];
 const MONTH_NAMES = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
-
-function parseDate(dateStr) {
-  if (!dateStr) return new Date(0);
-  const parts = dateStr.split('.');
-  if (parts.length === 3) {
-    return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
-  }
-  return new Date(dateStr);
-}
 
 export default function WalletScreen({ navigation }) {
   const [records, setRecords]           = useState([]);
@@ -58,7 +50,7 @@ export default function WalletScreen({ navigation }) {
 
   const filteredInvestments = allInvestments.filter(k => {
     if (activePeriod === 'Tümü') return true;
-    const t = parseDate(k.date);
+    const t = startOfLocalDay(parseRecordDate(k.date));
     if (activePeriod === 'Gün')   return t >= today;
     if (activePeriod === 'Hafta') return t >= weekAgo;
     if (activePeriod === 'Ay')    return t >= monthStart;
@@ -92,7 +84,7 @@ export default function WalletScreen({ navigation }) {
     const monthStartDate = new Date(now.getFullYear(), now.getMonth() - offset, 1);
     const monthEndDate   = new Date(now.getFullYear(), now.getMonth() - offset + 1, 1);
     const amount = allInvestments
-      .filter(k => { const t = parseDate(k.date); return t >= monthStartDate && t < monthEndDate; })
+      .filter(k => { const t = parseRecordDate(k.date); return t >= monthStartDate && t < monthEndDate; })
       .reduce((s, k) => s + k.amount, 0);
     return { label: MONTH_NAMES[monthStartDate.getMonth()], amount, active: offset === 0 };
   });
@@ -136,7 +128,7 @@ export default function WalletScreen({ navigation }) {
               <Text style={styles.portfolioSmallLabel}>Bu Ay</Text>
               <Text style={styles.portfolioSmallValue}>
                 ₺{allInvestments
-                    .filter(k => parseDate(k.date) >= monthStart)
+                    .filter(k => parseRecordDate(k.date) >= monthStart)
                     .reduce((s, k) => s + k.amount, 0)
                     .toLocaleString('tr-TR', { minimumFractionDigits: 0 })}
               </Text>

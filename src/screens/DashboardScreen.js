@@ -13,6 +13,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getRecords } from '../services/api';
 import { getCategoryStyle } from '../constants/categories';
+import { formatRecordDateDisplay } from '../utils/recordDate';
 import { useAuth } from '../context/AuthContext';
 
 const FALLBACK_TRANSACTIONS = [];
@@ -70,7 +71,7 @@ export default function DashboardScreen({ navigation }) {
         </View>
         <View style={styles.txInfo}>
           <Text style={styles.txTitle}>{item.title}</Text>
-          <Text style={styles.txDesc}>{item.category} • {item.date}</Text>
+          <Text style={styles.txDesc}>{item.category} • {formatRecordDateDisplay(item.date)}</Text>
         </View>
         <View style={styles.txRight}>
           <Text style={isInvestment ? styles.amountInvestment : styles.amountExpense}>

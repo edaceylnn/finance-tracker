@@ -13,6 +13,11 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { addRecord, updateRecord } from '../services/api';
+import {
+  formatRecordDateDisplay,
+  parseUserDateInput,
+  toIsoDateForApi,
+} from '../utils/recordDate';
 
 const EXPENSE_CATEGORIES = [
   { key: 'Yiyecek',   icon: 'restaurant'                  },
@@ -45,8 +50,9 @@ export default function AddExpenseScreen({ navigation, route }) {
     recordToEdit?.category || 'Yiyecek',
   );
   const [date, setDate] = useState(
-    recordToEdit?.date ||
-    new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+    recordToEdit?.date != null
+      ? formatRecordDateDisplay(recordToEdit.date)
+      : formatRecordDateDisplay(new Date()),
   );
   const [note, setNote]     = useState(recordToEdit?.title || '');
   const [saving, setSaving] = useState(false);
@@ -65,6 +71,11 @@ export default function AddExpenseScreen({ navigation, route }) {
       Alert.alert('Hata', 'Lütfen geçerli bir tutar girin.');
       return;
     }
+    const parsedDate = parseUserDateInput(date);
+    if (!parsedDate) {
+      Alert.alert('Hata', 'Lütfen geçerli bir tarih girin (ör. GG.AA.YYYY).');
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -72,7 +83,7 @@ export default function AddExpenseScreen({ navigation, route }) {
         amount:   normalAmt,
         category: selectedCategory,
         type,
-        date,
+        date:     toIsoDateForApi(parsedDate),
       };
       if (editMode) {
         await updateRecord(recordToEdit._id, payload);

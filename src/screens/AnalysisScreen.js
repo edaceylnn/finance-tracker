@@ -13,22 +13,10 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getRecords } from '../services/api';
 import { getCategoryStyle } from '../constants/categories';
+import { parseRecordDate, startOfLocalDay } from '../utils/recordDate';
 
 const PERIOD_TABS = ['Gün', 'Hafta', 'Ay'];
 const MONTH_NAMES = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
-
-function parseDate(dateStr) {
-  if (!dateStr) return new Date(0);
-  const parts = dateStr.split('.');
-  if (parts.length === 3) {
-    return new Date(
-      parseInt(parts[2], 10),
-      parseInt(parts[1], 10) - 1,
-      parseInt(parts[0], 10),
-    );
-  }
-  return new Date(dateStr);
-}
 
 export default function AnalysisScreen({ navigation }) {
   const [activePeriod, setActivePeriod] = useState('Ay');
@@ -59,7 +47,7 @@ export default function AnalysisScreen({ navigation }) {
 
   const filtered = records.filter(k => {
     if (k.type !== 'expense') return false;
-    const t = parseDate(k.date);
+    const t = startOfLocalDay(parseRecordDate(k.date));
     if (activePeriod === 'Gün')   return t >= today;
     if (activePeriod === 'Hafta') return t >= weekAgo;
     if (activePeriod === 'Ay')    return t >= monthStart;
@@ -99,7 +87,7 @@ export default function AnalysisScreen({ navigation }) {
     const monthStartDate = new Date(now.getFullYear(), now.getMonth() - offset, 1);
     const monthEndDate   = new Date(now.getFullYear(), now.getMonth() - offset + 1, 1);
     const monthRecords   = records.filter(k => {
-      const t = parseDate(k.date);
+      const t = parseRecordDate(k.date);
       return t >= monthStartDate && t < monthEndDate;
     });
     return {

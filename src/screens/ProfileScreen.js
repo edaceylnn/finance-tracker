@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,51 @@ import {
   StatusBar,
   TouchableOpacity,
   Alert,
+  Share,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
+import { getRecords } from '../services/api';
+import { formatRecordDateDisplay } from '../utils/recordDate';
+
+function escapeCsvCell(value) {
+  const s = String(value ?? '');
+  if (/[",\r\n]/.test(s)) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportCsv = async () => {
+    setExporting(true);
+    try {
+      const rows = await getRecords();
+      const header = ['type', 'title', 'amount', 'currency', 'category', 'date'];
+      const lines = [header.map(escapeCsvCell).join(',')];
+      for (const r of rows) {
+        const line = [
+          r.type,
+          r.title,
+          r.amount,
+          'TRY',
+          r.category,
+          formatRecordDateDisplay(r.date),
+        ].map(escapeCsvCell).join(',');
+        lines.push(line);
+      }
+      const csv = '\uFEFF' + lines.join('\n');
+      await Share.share({ message: csv, title: 'records.csv' });
+    } catch {
+      Alert.alert('Hata', 'Dışa aktarma başarısız oldu.');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -58,6 +97,24 @@ export default function ProfileScreen() {
 
       {/* Ayarlar Satırları */}
       <View style={styles.section}>
+        <View style={styles.rowWrapper}>
+          <TouchableOpacity
+            style={styles.row}
+            onPress={handleExportCsv}
+            disabled={exporting}
+          >
+            <View style={[styles.rowIconBox, { backgroundColor: '#E0F7FA' }]}>
+              {exporting ? (
+                <ActivityIndicator size="small" color="#11c4d4" />
+              ) : (
+                <Ionicons name="download-outline" size={20} color="#11c4d4" />
+              )}
+            </View>
+            <Text style={styles.rowText}>Dışa Aktar (CSV)</Text>
+            <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.rowSeparator} />
         <View style={styles.rowWrapper}>
           <TouchableOpacity style={styles.row} onPress={handleLogout}>
             <View style={[styles.rowIconBox, { backgroundColor: '#FEE2E2' }]}>
@@ -126,6 +183,11 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   rowWrapper: {},
+  rowSeparator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: '#E2E8F0',
+    marginLeft: 68,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

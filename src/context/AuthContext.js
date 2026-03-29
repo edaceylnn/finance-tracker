@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setAuthToken } from '../services/api';
+import { setAuthToken, fetchMe } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -16,11 +16,22 @@ export function AuthProvider({ children }) {
   const checkToken = async () => {
     try {
       const savedToken = await AsyncStorage.getItem('auth_token');
-      const savedUser = await AsyncStorage.getItem('auth_user');
-      if (savedToken && savedUser) {
+      if (!savedToken) {
+        return;
+      }
+      setAuthToken(savedToken);
+      try {
+        const me = await fetchMe();
+        const userData = { id: me.id, name: me.name, email: me.email };
         setToken(savedToken);
-        setUser(JSON.parse(savedUser));
-        setAuthToken(savedToken);
+        setUser(userData);
+        await AsyncStorage.setItem('auth_user', JSON.stringify(userData));
+      } catch {
+        await AsyncStorage.removeItem('auth_token');
+        await AsyncStorage.removeItem('auth_user');
+        setAuthToken(null);
+        setToken(null);
+        setUser(null);
       }
     } catch {
       // AsyncStorage error
