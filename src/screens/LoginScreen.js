@@ -63,7 +63,7 @@ export default function LoginScreen({ navigation }) {
             <View style={styles.logoCircle}>
               <Ionicons name="wallet" size={40} color="#11c4d4" />
             </View>
-            <Text style={styles.appName}>GiderTakip</Text>
+            <Text style={styles.appName}>Gider Takip</Text>
             <Text style={styles.subtitle}>Hesabınıza giriş yapın</Text>
           </View>
 

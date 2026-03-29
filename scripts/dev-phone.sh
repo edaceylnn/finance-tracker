@@ -8,7 +8,7 @@ cd "$ROOT"
 
 LAN_IP="$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || true)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  GiderTakipApp — phone dev (backend + Metro)"
+echo "  Finance Tracker — phone dev (backend + Metro)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  Mac LAN IP (Wi-Fi): ${LAN_IP:-unknown}"
 echo "  src/config/api.js → DEV_API_HOST must match this IP on phone."

@@ -1,4 +1,4 @@
-# GiderTakipApp
+# Finance Tracker
 
 React Native expense and investment tracker with a Node.js (Express + MongoDB) API and JWT authentication.
 
