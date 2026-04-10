@@ -1,4 +1,4 @@
-function normalizeRecordDate(input) {
+export function normalizeRecordDate(input: unknown): Date {
   if (input == null || input === '') {
     return new Date();
   }
@@ -24,5 +24,3 @@ function normalizeRecordDate(input) {
   }
   return new Date();
 }
-
-module.exports = { normalizeRecordDate };

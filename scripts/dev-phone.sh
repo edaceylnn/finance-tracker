@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Starts backend (3001) + Metro (0.0.0.0:8081) for testing on a physical device.
-# Requires: MongoDB running, backend/.env valid, DEV_API_HOST set in src/config/api.js
+# Requires: MongoDB running, backend/.env valid, DEV_API_HOST set in src/config/api.ts
 
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -11,7 +11,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "  Finance Tracker — phone dev (backend + Metro)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  Mac LAN IP (Wi-Fi): ${LAN_IP:-unknown}"
-echo "  src/config/api.js → DEV_API_HOST must match this IP on phone."
+echo "  src/config/api.ts → DEV_API_HOST must match this IP on phone."
 echo "  Metro URL on phone if needed: ${LAN_IP:-YOUR_IP}:8081"
 echo ""
 echo "  MongoDB must be running. Ctrl+C stops backend and Metro."
@@ -26,7 +26,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-(cd "${ROOT}/backend" && node index.js) &
+(cd "${ROOT}/backend" && npm run build --silent && node dist/index.js) &
 BACKEND_PID=$!
 sleep 0.7
 

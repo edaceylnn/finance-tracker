@@ -1,4 +1,4 @@
-export function parseRecordDate(value) {
+export function parseRecordDate(value: unknown): Date {
   if (value == null || value === '') {
     return new Date(0);
   }
@@ -26,12 +26,12 @@ export function parseRecordDate(value) {
   return new Date(0);
 }
 
-export function startOfLocalDay(d) {
+export function startOfLocalDay(d: unknown): Date {
   const x = parseRecordDate(d);
   return new Date(x.getFullYear(), x.getMonth(), x.getDate());
 }
 
-export function formatRecordDateDisplay(value) {
+export function formatRecordDateDisplay(value: unknown): string {
   const x = parseRecordDate(value);
   if (x.getTime() === 0) {
     return '';
@@ -43,7 +43,7 @@ export function formatRecordDateDisplay(value) {
   });
 }
 
-export function parseUserDateInput(text) {
+export function parseUserDateInput(text: unknown): Date | null {
   if (text == null || String(text).trim() === '') {
     return null;
   }
@@ -66,7 +66,7 @@ export function parseUserDateInput(text) {
   return null;
 }
 
-export function toIsoDateForApi(d) {
+export function toIsoDateForApi(d: unknown): string {
   const x = d instanceof Date ? d : parseRecordDate(d);
   if (Number.isNaN(x.getTime())) {
     return new Date().toISOString();

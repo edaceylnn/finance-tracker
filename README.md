@@ -1,21 +1,22 @@
 # Finance Tracker
 
-React Native expense and investment tracker with a Node.js (Express + MongoDB) API and JWT authentication.
+React Native expense and investment tracker with a Node.js (Express + MongoDB) API and JWT authentication. The app and API are written in **TypeScript**.
 
 ## Project layout
 
 | Path | Role |
 |------|------|
-| [App.js](App.js) | App entry: navigation, auth, tabs |
-| [src/services/api.js](src/services/api.js) | HTTP client (`fetch`) |
-| [src/config/api.js](src/config/api.js) | API base URL (emulator defaults + optional override) |
-| [backend/index.js](backend/index.js) | Express entry: mounts routes |
-| [backend/models/](backend/models/) | Mongoose `User`, `Record` |
-| [backend/routes/](backend/routes/) | `/auth`, `/records` routers |
-| [backend/middleware/auth.js](backend/middleware/auth.js) | JWT `authMiddleware` |
-| [backend/utils/date.js](backend/utils/date.js) | `normalizeRecordDate` |
+| [App.tsx](App.tsx) | App root: navigation, auth, tabs |
+| [index.tsx](index.tsx) | Metro entry (`AppRegistry`) |
+| [src/services/api.ts](src/services/api.ts) | HTTP client (`fetch`) |
+| [src/config/api.ts](src/config/api.ts) | API base URL (emulator defaults + optional override) |
+| [backend/index.ts](backend/index.ts) | Express entry (compiled to `backend/dist/`) |
+| [backend/models/](backend/models/) | Mongoose `User`, `Record`, `RecurringRecord` |
+| [backend/routes/](backend/routes/) | `/auth`, `/records`, `/recurring-records`, `/metals` |
+| [backend/middleware/auth.ts](backend/middleware/auth.ts) | JWT `authMiddleware` |
+| [backend/utils/date.ts](backend/utils/date.ts) | `normalizeRecordDate` |
 
-Metro registers the app from [index.js](index.js) (`import App from './App'` resolves to `App.js`).
+Metro loads [index.tsx](index.tsx); `import App from './App'` resolves to `App.tsx`.
 
 ## Prerequisites
 
@@ -28,12 +29,19 @@ Metro registers the app from [index.js](index.js) (`import App from './App'` res
 ```sh
 cd backend
 cp .env.example .env
-# Edit .env: set MONGO_URI and JWT_SECRET
+# Edit .env: set MONGO_URI and JWT_SECRET (optional: METALPRICE_API_KEY, ALLOWED_ORIGINS)
 npm install
-node index.js
+npm run build
+npm start
 ```
 
-Server listens on **port 3001**.
+`npm start` runs `node dist/index.js` after a successful build. For development with auto-reload:
+
+```sh
+npm run dev
+```
+
+Server listens on **port 3001**. Compiled output is in `backend/dist/` (ignored by git).
 
 ## Mobile app
 
@@ -43,12 +51,18 @@ Install dependencies from the repository root:
 npm install
 ```
 
+### TypeScript
+
+```sh
+npm run typecheck   # tsc --noEmit (app only; backend has its own tsconfig)
+```
+
 ### API URL (simulator vs physical device)
 
 By default the client uses:
 
 - **Android emulator:** `http://10.0.2.2:3001`
-- **iOS simulator:** `http://127.0.0.1:3001` (see [src/config/api.js](src/config/api.js))
+- **iOS simulator:** `http://127.0.0.1:3001` (see [src/config/api.ts](src/config/api.ts))
 
 ### Cold start on a physical phone (everything stopped)
 
@@ -56,8 +70,8 @@ Do this order:
 
 1. **MongoDB** running (local or Atlas in `backend/.env`).
 2. **Wi-Fi** — Phone and Mac on the same network.
-3. **[src/config/api.js](src/config/api.js)** — `DEV_API_HOST` = your Mac’s Wi-Fi IP (run `ipconfig getifaddr en0` or `en1` if empty).
-4. **Terminal 1 (project root):** `npm run dev:phone` — starts **backend :3001** and **Metro :8081** on all interfaces. Leave it open.
+3. **[src/config/api.ts](src/config/api.ts)** — `DEV_API_HOST` = your Mac’s Wi-Fi IP (run `ipconfig getifaddr en0` or `en1` if empty).
+4. **Terminal 1 (project root):** `npm run dev:phone` — builds backend, starts **:3001**, and **Metro :8081** on all interfaces. Leave it open.
 5. **Terminal 2 (project root):** connect iPhone via USB, trust the Mac, then:
    ```sh
    npx react-native run-ios --device
@@ -78,7 +92,7 @@ npm run ios
 npm run android
 ```
 
-On a **physical device**, use `npm run dev:phone` (backend + Metro on LAN) or `npm run start:lan` (Metro only, if backend is already running elsewhere).
+On a **physical device**, use `npm run dev:phone` (backend build + backend + Metro on LAN) or `npm run start:lan` (Metro only, if backend is already running elsewhere).
 
 ## Scripts
 
@@ -86,8 +100,9 @@ On a **physical device**, use `npm run dev:phone` (backend + Metro on LAN) or `n
 |---------|-------------|
 | `npm run lint` | ESLint |
 | `npm test` | Jest |
+| `npm run typecheck` | TypeScript check for the React Native app |
 | `npm run start:lan` | Metro bound to `0.0.0.0` (phone can load JS over Wi-Fi) |
-| `npm run dev:phone` | Backend (3001) + Metro (8081, `0.0.0.0`) together |
+| `npm run dev:phone` | Backend build + backend (3001) + Metro (8081, `0.0.0.0`) together |
 
 ## CI
 

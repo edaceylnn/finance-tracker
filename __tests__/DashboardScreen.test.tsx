@@ -8,6 +8,7 @@ jest.mock('@react-navigation/native', () => ({
 
 jest.mock('../src/services/api', () => ({
   getRecords: jest.fn().mockResolvedValue([]),
+  processRecurringRecords: jest.fn().mockResolvedValue({}),
 }));
 
 jest.mock('../src/context/AuthContext', () => ({
@@ -16,8 +17,12 @@ jest.mock('../src/context/AuthContext', () => ({
 
 jest.mock('react-native-vector-icons/Ionicons', () => 'Icon');
 
+jest.mock('../src/services/widgetDataService', () => ({
+  refreshWidgetData: jest.fn().mockResolvedValue(null),
+}));
+
 test('DashboardScreen renders without crashing', async () => {
-  const nav = { navigate: jest.fn() };
+  const nav = { navigate: jest.fn(), goBack: jest.fn() };
   await ReactTestRenderer.act(async () => {
     ReactTestRenderer.create(<DashboardScreen navigation={nav} />);
   });

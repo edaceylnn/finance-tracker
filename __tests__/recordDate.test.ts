@@ -30,7 +30,7 @@ describe('parseUserDateInput', () => {
   it('accepts dd.mm.yyyy', () => {
     const d = parseUserDateInput('15.01.2024');
     expect(d).not.toBeNull();
-    expect(d.getFullYear()).toBe(2024);
+    expect(d!.getFullYear()).toBe(2024);
   });
 
   it('returns null for garbage', () => {
